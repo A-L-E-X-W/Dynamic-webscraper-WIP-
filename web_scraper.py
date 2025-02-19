@@ -21,48 +21,10 @@ from typing import List, Type
 from data_source import URLS
 from utils import USER_AGENTS,MODEL_PRICING,CHROME_HEADLESS_OPTIONS,AI_EXTRACTION_USER_PROMPT,LLAMA_FULL_MODEL_NAME,GROQ_LLAMA_FULL_MODEL_NAME, EXTRACTION_SYSTEM_MESSAGE
 from playwright.sync_api import sync_playwright
-
+from chromium_helper import initialize_selenium
 
 
 load_dotenv()
-
-# Set up the Chrome WebDriver options
-
-def initialize_selenium():
-    """
-    Sets up and initializes the Selenium Chrome WebDriver.
-    Adds randomized user agents and headless browser options for scraping.
-    """
-    options = Options()
-
-    # Randomly select a user agent from the imported list
-    user_agent = random.choice(USER_AGENTS)
-    options.add_argument(f"user-agent={user_agent}")
-
-    # Apply headless or other options as needed
-    for option in CHROME_HEADLESS_OPTIONS:
-        options.add_argument(option)
-
-    
-    # Dynamically get the path to Playwright's Chromium binary
-    with sync_playwright() as p:
-        chromium_path = p.chromium.executable_path
-
-    # Configure Selenium to use Playwright's Chromium
-    options.binary_location = chromium_path  # Set the browser binary location
-
-    # Specify the location of the ChromeDriver executable
-    service = Service("./chromedriver")
-    
-
-    # Return the configured WebDriver instance
-    driver = webdriver.Chrome(service=service, options=options)
-    return driver
-
-
-
-
-
 
 
 
