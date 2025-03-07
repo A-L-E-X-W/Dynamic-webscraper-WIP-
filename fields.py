@@ -1,9 +1,11 @@
 # Reads desired fields that will be used under the scraping process
-field_tags = [
+
+desired_fields= [
 
     "name",
     "price",
-    "url",
+    "image_url",
+    "url"
     
     ]
 

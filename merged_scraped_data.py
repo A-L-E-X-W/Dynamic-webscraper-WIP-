@@ -30,7 +30,7 @@ logging.basicConfig(
 load_dotenv()
 
 # Load LLM settings
-LLAMA_MODEL_FULLNAME = os.environ.get("LLAMA_MODEL_FULLNAME", "llama-3.1-70b-versatile")
+LLAMA_MODEL_FULLNAME = os.environ.get("LLAMA_MODEL_FULLNAME", "llama-3.3-70b-versatile")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 # Cache to store previous LLM column responses (TTL: 24 hours)

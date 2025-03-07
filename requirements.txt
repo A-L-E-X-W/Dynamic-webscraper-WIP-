@@ -94,6 +94,7 @@ websocket-client==1.8.0
 wsproto==1.2.0
 sentence-transformers
 playwright
+webdriver_manager
 
 
 # Conda specific dependencies

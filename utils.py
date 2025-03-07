@@ -90,13 +90,13 @@ USER_AGENTS = [
 
 # Pricing details for specific AI models in use. This provides the cost structure for input and output data processing for the Groq Llama 3.1 model.
 MODEL_PRICING = {
-    "Groq Llama3.1 70b": {
+    "llama-3.3-70b-versatile": {
         "input": 0.0,  # Free
         "output": 0.0,  # Free
     },
 }
 
-GROQ_LLAMA_FULL_MODEL_NAME = "llama-3.1-70b-versatile"
+GROQ_LLAMA_FULL_MODEL_NAME = "llama-3.3-70b-versatile"
 
 
             
@@ -114,7 +114,7 @@ CHROME_HEADLESS_OPTIONS = [
 
 
 LLAMA_FULL_MODEL_NAME="lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF"
-GROQ_LLAMA_MODEL_NAME="llama-3.1-70b-versatile"
+GROQ_LLAMA_MODEL_NAME="llama-3.3-70b-versatile"
 
 # System message for setting context in AI interactions. Guides the AI model to extract structured data from the provided text and return it in JSON format.
 EXTRACTION_SYSTEM_MESSAGE = """You are an intelligent text extraction and conversion assistant. Your task is to extract structured information 

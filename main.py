@@ -7,12 +7,12 @@ from bs4 import BeautifulSoup
 from web_scraper import fetch_html_selenium, html_to_markdown, scrape_url
 from data_source import URLS
 from urllib.parse import urlparse, urljoin
-from selenium import webdriver
-from fields import field_tags
-from chromium_helper import initialize_selenium  # Import our custom helper
+from chromium_helper import initialize_selenium
 
-# Import the PDF crawler module (new functionality)
-from pdf_crawler import crawl_for_pdfs
+from selenium import webdriver
+
+
+from fields import desired_fields # Imports your field sets
 
 def generate_unique_folder_name(url):
     timestamp = datetime.now().strftime('%Y_%m_%d__%H_%M_%S')
@@ -67,6 +67,23 @@ def attended_mode(driver, url):
     # Return the current page source after user navigation
     return driver.page_source
 
+
+
+
+def check_missing_fields(listings, fields):
+    """
+    Check if any fields are missing from listings data.
+    Returns a list of missing fields.
+    """
+    missing_fields = []
+    
+    # Loop through each item in listings and each field to check if it's present
+    for field in fields:
+        if all(not item.get(field) for item in listings):
+            missing_fields.append(field)
+            
+    return missing_fields
+
 def scrape_multiple_urls(urls, fields, selected_model):
     output_folder = os.path.join('output', generate_unique_folder_name(urls[0]))
     os.makedirs(output_folder, exist_ok=True)
@@ -77,15 +94,10 @@ def scrape_multiple_urls(urls, fields, selected_model):
     all_data = []
     first_url_markdown = None
 
-    # Use our custom initialization function instead of a default call
-    driver = initialize_selenium()
-
-    
-
-    # original
     #driver = webdriver.Chrome()  # Adjust based on your setup
 
-    
+    driver = initialize_selenium()
+
 
     for url in urls:
         page_urls_to_scrape = [url]
@@ -112,77 +124,24 @@ def scrape_multiple_urls(urls, fields, selected_model):
 
             print(f"\nFormatted data for URL {current_url}: {formatted_data}")  # Debugging line
 
-
-
-
-
-
-
-
-
-
-
-
-
-           
-
-            # original
-            """
-            # Check for missing fields, ensuring formatted_data is valid
+            # Check for missing fields
             if isinstance(formatted_data, dict) and 'listings' in formatted_data:
                 listings = formatted_data['listings']
-                # Check if the listings are empty or if all fields in listings are empty
-                if not listings or all(not item.get('weather') and not item.get('water') for item in listings):
-                    missing_fields = ['weather', 'water']  # Define what you consider as missing fields
-                else:
-                    missing_fields = []
+                missing_fields = check_missing_fields(listings, fields)
             else:
                 print(f"Warning: formatted_data for {current_url} is not in the expected format: {formatted_data}")
-                missing_fields = ['weather', 'water']  # Treat this case as missing fields
+                missing_fields = fields  # If data format is incorrect, treat all fields as missing
 
             print(f"Missing fields detected for {current_url}: {missing_fields}")  # Debugging line
 
             if missing_fields:
                 print(f"Entering attended mode for {current_url} due to missing fields.")
                 raw_html = attended_mode(driver, current_url)  # Manual navigation
-                # Re-scrape with the updated page source after manual navigation
                 input_tokens, output_tokens, cost, formatted_data = scrape_url(
                     current_url, fields, selected_model, output_folder, len(all_data) + 1, html_to_markdown(raw_html))
                 total_input_tokens += input_tokens
                 total_output_tokens += output_tokens
                 total_cost += cost
-            """
-            
-            # New 
-            
-            # Check for missing fields based on field_tags from fields.py
-            missing_fields = []
-            if isinstance(formatted_data, dict) and 'listings' in formatted_data:
-                listings = formatted_data['listings']
-                for field in field_tags:
-                    # If there are no listings or every listing is missing a non-empty value for this field,
-                    # consider the field as missing.
-                    if not listings or all(not item.get(field) for item in listings):
-                        missing_fields.append(field)
-            else:
-                print(f"Warning: formatted_data for {current_url} is not in the expected format: {formatted_data}")
-                missing_fields = field_tags.copy()  # Treat all as missing in this case
-
-            print(f"Missing fields detected for {current_url}: {missing_fields}")  # Debugging line
-
-            if missing_fields:
-                print(f"Entering attended mode for {current_url} due to missing fields.")
-                raw_html = attended_mode(driver, current_url)  # Manual navigation
-                # Re-scrape with the updated page source after manual navigation
-                input_tokens, output_tokens, cost, formatted_data = scrape_url(
-                    current_url, fields, selected_model, output_folder, len(all_data) + 1, html_to_markdown(raw_html))
-                total_input_tokens += input_tokens
-                total_output_tokens += output_tokens
-                total_cost += cost
-            
-            
-                
-
 
             if formatted_data is not None:  # Ensure we only append valid data
                 all_data.append(formatted_data)
@@ -211,16 +170,12 @@ def read_fields_from_file(file_path):
     except Exception as e:
         print(f"Error reading fields from file: {e}")
         return []
+    
 
 def perform_scrape():
     urls = URLS
-    model_selection = "Groq Llama3.1 70b"
-    tags = field_tags
-
-    # --- New Step: Crawl for PDFs ---
-    #for url in urls:
-     #   print(f"Starting PDF crawl for {url}...")
-      #  crawl_for_pdfs(url)
+    model_selection = "llama-3.3-70b-versatile"
+    tags = desired_fields  # Using test fields to test attended mode functionality
 
     all_data = []
     output_folder, total_input_tokens, total_output_tokens, total_cost, all_data, first_url_markdown = scrape_multiple_urls(urls, tags, model_selection)

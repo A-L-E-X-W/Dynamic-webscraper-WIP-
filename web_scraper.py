@@ -20,13 +20,46 @@ from groq import Groq
 from typing import List, Type
 from data_source import URLS
 from utils import USER_AGENTS,MODEL_PRICING,CHROME_HEADLESS_OPTIONS,AI_EXTRACTION_USER_PROMPT,LLAMA_FULL_MODEL_NAME,GROQ_LLAMA_FULL_MODEL_NAME, EXTRACTION_SYSTEM_MESSAGE
-from playwright.sync_api import sync_playwright
-from chromium_helper import initialize_selenium
+
+from chromium_helper import get_playwright_chromium_path, get_browser_version
 
 
 load_dotenv()
 
+# Set up the Chrome WebDriver options
 
+def initialize_selenium():
+    """
+    Sets up and initializes the Selenium Chrome WebDriver.
+    Adds randomized user agents and headless browser options for scraping.
+    """
+    options = Options()
+
+    # Randomly select a user agent from the imported list
+    user_agent = random.choice(USER_AGENTS)
+    options.add_argument(f"user-agent={user_agent}")
+
+    # Apply headless or other options as needed
+    for option in CHROME_HEADLESS_OPTIONS:
+        options.add_argument(option)
+
+    chromium_path = get_playwright_chromium_path()
+    print(f"Using Chromium binary at: {chromium_path}")
+    options.binary_location = chromium_path
+
+    # Retrieve the Chromium browser version
+    browser_version = get_browser_version(chromium_path)
+    print(f"Detected Chromium version: {browser_version}")
+
+    # Use webdriver_manager to install the chromedriver matching the browser version
+    from webdriver_manager.chrome import ChromeDriverManager
+    service = Service(ChromeDriverManager(driver_version=browser_version).install())
+
+    # Return the configured WebDriver instance
+    driver = webdriver.Chrome(service=service, options=options)
+    return driver
+
+    
 
 def click_cookies_accept(driver):
     """
@@ -277,71 +310,63 @@ def system_message(listing_model: BaseModel) -> str:
 
 
 
+import os
+import json
+import httpx
+from groq import Groq
+
 def format_data(data, DynamicListingsContainer, DynamicListingModel, selected_model):
     token_counts = {}
     
-    if selected_model == "Llama3.1 8B":
-
-        # Dynamically generate the system message based on the schema
-        sys_message = system_message(DynamicListingModel)
-        # print(SYSTEM_MESSAGE)
-        # Point to the local server
-        client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-
-        completion = client.chat.completions.create(
-            model=LLAMA_FULL_MODEL_NAME, #change this if needed (use a better model)
-            messages=[
-                {"role": "system", "content": sys_message},
-                {"role": "user", "content": AI_EXTRACTION_USER_PROMPT + data}
-            ],
-            temperature=0.7,
-            
-        )
-
-        # Extract the content from the response
-        response_content = completion.choices[0].message.content
-        print(response_content)
-        # Convert the content from JSON string to a Python dictionary
-        parsed_response = json.loads(response_content)
+    try:
+        # Create a custom httpx client with no proxy settings
+        http_client = httpx.Client()  # No proxies specified
+        # Initialize the Groq client with the custom httpx client
+        client = Groq(api_key=os.environ.get("GROQ_API_KEY"), http_client=http_client)
         
-        # Extract token usage
-        token_counts = {
-            "input_tokens": completion.usage.prompt_tokens,
-            "output_tokens": completion.usage.completion_tokens
-        }
+        if selected_model == "Llama3.1 8B":
+            sys_message = system_message(DynamicListingModel)
+            completion = client.chat.completions.create(
+                model=LLAMA_FULL_MODEL_NAME,
+                messages=[
+                    {"role": "system", "content": sys_message},
+                    {"role": "user", "content": AI_EXTRACTION_USER_PROMPT + data}
+                ],
+                temperature=0.7,
+            )
+            response_content = completion.choices[0].message.content
+            print(response_content)
+            parsed_response = json.loads(response_content)
+            token_counts = {
+                "input_tokens": completion.usage.prompt_tokens,
+                "output_tokens": completion.usage.completion_tokens
+            }
+            return parsed_response, token_counts
 
-        return parsed_response, token_counts
-    elif selected_model== "Groq Llama3.1 70b":
-        
-        # Dynamically generate the system message based on the schema
-        sys_message = system_message(DynamicListingModel)
-        # print(SYSTEM_MESSAGE)
-        # Point to the local server
-        client = Groq(api_key=os.environ.get("GROQ_API_KEY"),)
+        elif selected_model == "llama-3.3-70b-versatile":
+            sys_message = system_message(DynamicListingModel)
+            completion = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": sys_message},
+                    {"role": "user", "content": AI_EXTRACTION_USER_PROMPT + data}
+                ],
+                model=GROQ_LLAMA_FULL_MODEL_NAME,
+            )
+            response_content = completion.choices[0].message.content
+            parsed_response = json.loads(response_content)
+            token_counts = {
+                "input_tokens": completion.usage.prompt_tokens,
+                "output_tokens": completion.usage.completion_tokens
+            }
+            return parsed_response, token_counts
+        else:
+            raise ValueError(f"Unsupported model: {selected_model}")
+    except Exception as e:
+        print(f"Error during formatting data: {e}")
+        # Return empty values to signal failure (which may trigger attended mode)
+        return {}, {}
 
-        completion = client.chat.completions.create(
-        messages=[
-            {"role": "system","content": sys_message},
-            {"role": "user","content": AI_EXTRACTION_USER_PROMPT + data}
-        ],
-        model=GROQ_LLAMA_FULL_MODEL_NAME,
-    )
 
-        # Extract the content from the response
-        response_content = completion.choices[0].message.content
-        
-        # Convert the content from JSON string to a Python dictionary
-        parsed_response = json.loads(response_content)
-        
-        # completion.usage
-        token_counts = {
-            "input_tokens": completion.usage.prompt_tokens,
-            "output_tokens": completion.usage.completion_tokens
-        }
-
-        return parsed_response, token_counts
-    else:
-        raise ValueError(f"Unsupported model: {selected_model}")
 
 
 
