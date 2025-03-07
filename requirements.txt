@@ -108,7 +108,7 @@ webdriver_manager
 
 
 # Other dependencies (install via pip)
-docarray
+docarray==0.21.0
 aiofiles
 aiohttp
 docker

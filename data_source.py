@@ -1,7 +1,7 @@
 # List of URLs to scrape
 URLS = [
 
-    "https://scrapeme.live/shop/"
+    "https://www.tillvaxtanalys.se/"
 
     ]
 

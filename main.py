@@ -9,6 +9,9 @@ from data_source import URLS
 from urllib.parse import urlparse, urljoin
 from chromium_helper import initialize_selenium
 
+# Import the PDF crawler module (new functionality)
+from pdf_crawler import crawl_for_pdfs
+
 from selenium import webdriver
 
 
@@ -94,8 +97,6 @@ def scrape_multiple_urls(urls, fields, selected_model):
     all_data = []
     first_url_markdown = None
 
-    #driver = webdriver.Chrome()  # Adjust based on your setup
-
     driver = initialize_selenium()
 
 
@@ -176,6 +177,11 @@ def perform_scrape():
     urls = URLS
     model_selection = "llama-3.3-70b-versatile"
     tags = desired_fields  # Using test fields to test attended mode functionality
+
+    # Crawl for PDFs
+    #for url in urls:
+        #print(f"Starting PDF crawl for {url}...")
+        #crawl_for_pdfs(url)
 
     all_data = []
     output_folder, total_input_tokens, total_output_tokens, total_cost, all_data, first_url_markdown = scrape_multiple_urls(urls, tags, model_selection)

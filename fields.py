@@ -1,5 +1,5 @@
 # Reads desired fields that will be used under the scraping process
-
+"""
 desired_fields= [
 
     "name",
@@ -8,18 +8,26 @@ desired_fields= [
     "url"
     
     ]
-
 """
-field_tags = [
+
+
+"""desired_fields= [
+
+    "titel",
+    "kontakt",
+    "beskrivning",
+    "kategori",
+    "datum",
+    "tid",
+    "url",
+    "bild url",
+    
+    ]"""
+
+desired_fields= [
 
     #"titel",
-    "kontakt",
-    #"beskrivning",
-    #"kategori",
     #"datum",
-    #"tid",
     "url",
-    #"bild url",
     
     ]
-"""

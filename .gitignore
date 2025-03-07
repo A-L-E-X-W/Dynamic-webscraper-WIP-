@@ -1,3 +1,49 @@
+# Ignore Python bytecode
+__pycache__/
+*.py[cod]
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore environment variables and sensitive information
 .env
 
+# Ignore cache files and temporary files
+*.cache
+*.tmp
+*.temp
 
+# Ignore output files and directories
+*.xlsx
+*.json
+*.csv
+output/
+data/
+logs/
+*.log
+
+# Ignore IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Ignore virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore files
+data_source.py
+fields.py
+chromedriver
+output
+downloads

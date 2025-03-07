@@ -11,8 +11,22 @@ from cachetools import TTLCache
 from difflib import SequenceMatcher
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+
+DOCKER_HOST = os.environ.get("DOCKER_HOST")
+# Docker settings
+os.environ["DOCKER_HOST"] = DOCKER_HOST
+
+
 from jina import Document, DocumentArray, Flow
 import warnings
+import httpx
+
+load_dotenv()
+
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+
+
+
 
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -31,7 +45,6 @@ load_dotenv()
 
 # Load LLM settings
 LLAMA_MODEL_FULLNAME = os.environ.get("LLAMA_MODEL_FULLNAME", "llama-3.3-70b-versatile")
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 # Cache to store previous LLM column responses (TTL: 24 hours)
 column_cache = TTLCache(maxsize=100, ttl=86400)
@@ -178,8 +191,20 @@ def fetch_columns_from_llm(data_sample):
     if not data_sample.strip():
         print("No column names provided to LLM.")
         return {}
+    
+    # Remove proxy settings (both uppercase and lowercase)
+    os.environ.pop("HTTP_PROXY", None)
+    os.environ.pop("HTTPS_PROXY", None)
+    os.environ.pop("http_proxy", None)
+    os.environ.pop("https_proxy", None)
+    
+    # Create a custom httpx client with no proxy configuration
+    http_client = httpx.Client()
+    
+    # Initialize the Groq client with the custom httpx client
+    client = Groq(api_key=GROQ_API_KEY, http_client=http_client)
 
-    client = Groq(api_key=GROQ_API_KEY)
+
     system_message = """
     You are an intelligent assistant that helps clean and organize data.
     Given these column names, please suggest merged or unified columns for consistency.
