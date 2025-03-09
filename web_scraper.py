@@ -6,6 +6,7 @@ import tiktoken
 import os
 import time, datetime
 import json
+import httpx
 import re
 import random
 from dotenv import load_dotenv
@@ -126,49 +127,6 @@ def fetch_html_selenium(url, driver):
         return html
     finally:
         driver.quit() # Close the WebDriver after completion
-
-
-
-# Click the cookie consent button if it appears
-"""def fetch_html_selenium(url, attended_mode=False, driver=None):
-    if driver is None:
-        driver = initialize_selenium(attended_mode)
-        should_quit = True
-        if not attended_mode:
-            # Load the webpage
-            driver.get(url)
-    else:
-        should_quit = False
-
-        if not attended_mode:
-            driver.get(url)
-    try:
-        if not attended_mode:
-        
-            # Simulate human interaction by waiting and scrolling
-            time.sleep(1)  # Mimic time spent by a user on the web page 
-            driver.maximize_window()
-            
-
-            # Handle cookie consent popup
-            click_cookies_accept(driver)
-
-            # Scroll to different sections of the page to mimic a real user's interaction
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight/2);")
-            time.sleep(random.uniform(1.1, 1.8))  # Simulate time taken to scroll and read
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight/1.2);")
-            time.sleep(random.uniform(1.1, 1.8))
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight/1);")
-            time.sleep(random.uniform(1.1, 2.1))
-            time.sleep(3)
-
-        # Get the full page's HTML source
-        html = driver.page_source
-        return html
-    finally:
-        if should_quit:
-            driver.quit() # Close the WebDriver after completion
-"""
 
 
 def clean_html(html_content):
@@ -310,10 +268,7 @@ def system_message(listing_model: BaseModel) -> str:
 
 
 
-import os
-import json
-import httpx
-from groq import Groq
+
 
 def format_data(data, DynamicListingsContainer, DynamicListingModel, selected_model):
     token_counts = {}
@@ -430,23 +385,6 @@ def generate_unique_folder_name(url):
     timestamp = datetime.now().strftime('%Y_%m_%d__%H_%M_%S')
     url_name = re.sub(r'\W+', '_', url.split('//')[1].split('/')[0])  # Extract domain name and replace non-alphanumeric characters
     return f"{url_name}_{timestamp}"
-
-
-"""
-def read_fields_from_file(file_path: str) -> List[str]:
-    
-    #Reads fields from a specified text file and returns them as a list.
-    #Each line in the file should contain one field name.
-    
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            fields = [line.strip() for line in f if line.strip()]  # Remove empty lines
-        print(f"Fields read from {file_path}: {fields}")
-        return fields
-    except Exception as e:
-        print(f"Error reading fields from file: {e}")
-        return []
-"""
 
 
 def scrape_urls_list(urls, selected_model):

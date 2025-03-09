@@ -176,7 +176,7 @@ def read_fields_from_file(file_path):
 def perform_scrape():
     urls = URLS
     model_selection = "llama-3.3-70b-versatile"
-    tags = desired_fields  # Using test fields to test attended mode functionality
+    tags = desired_fields  # Use test fields to test attended mode functionality
 
     # Crawl for PDFs
     for url in urls:
