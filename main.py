@@ -179,9 +179,9 @@ def perform_scrape():
     tags = desired_fields  # Using test fields to test attended mode functionality
 
     # Crawl for PDFs
-    #for url in urls:
-        #print(f"Starting PDF crawl for {url}...")
-        #crawl_for_pdfs(url)
+    for url in urls:
+        print(f"Starting PDF crawl for {url}...")
+        crawl_for_pdfs(url)
 
     all_data = []
     output_folder, total_input_tokens, total_output_tokens, total_cost, all_data, first_url_markdown = scrape_multiple_urls(urls, tags, model_selection)
