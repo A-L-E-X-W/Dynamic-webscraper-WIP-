@@ -127,8 +127,3 @@ def crawl_for_pdfs(base_url: str, base_download_dir: str = "downloads", max_dept
     # Use tqdm to show a progress bar for downloading PDFs.
     for pdf_url, link in tqdm(pdf_links, desc="Downloading PDFs", unit="pdf"):
         download_pdf(pdf_url, link, base_download_dir=base_download_dir)
-
-if __name__ == "__main__":
-    # For standalone testing, set the base URL here.
-    test_url = "https://www.tillvaxtanalys.se/"
-    crawl_for_pdfs(test_url)
