@@ -41,8 +41,9 @@ Dependencies include:
 1. Clone the Repository
 
 
-git clone https://github.com/yourusername/your-repo-name.git
-cd your-repo-name
+git clone https://github.com/A-L-E-X-W/Dynamic-webscraper-WIP-.git
+
+cd repo-name
 
 
 
